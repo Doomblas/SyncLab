@@ -265,3 +265,18 @@
 }
 
 #puente .puente-escena { min-height: 260px; }
+
+/* paginas separadas de cada ejercicio */
+.volver {
+    font-family: "DM Mono";
+    font-size: 12px;
+    color: var(--ink);
+    border: 2px solid var(--border);
+    background: var(--yellow);
+    padding: 8px 12px;
+    text-decoration: none;
+}
+
+.volver:hover { background: var(--coral); color: white; }
+
+.contenedor > .module:first-child { margin-top: 40px; }
