@@ -7,6 +7,7 @@
     <title>Práctica 3 · Sistemas Distribuidos</title>
 
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/sincronizacion.css">
 </head>
 
 <body>
@@ -442,6 +443,252 @@
 
 
         <!-- ======================================== -->
+        <!-- 03 PRODUCTOR / CONSUMIDOR -->
+        <!-- ======================================== -->
+
+        <section class="module" id="productor-consumidor">
+
+            <div class="module-heading">
+                <div class="module-number numero-teal">03</div>
+                <div class="module-title">
+                    <span class="eyebrow">SEMÁFOROS + MUTEX</span>
+                    <h2>PRODUCTOR / CONSUMIDOR</h2>
+                    <p>Almacén de 5 piezas compartido por 2 productores y 2 consumidores.</p>
+                </div>
+                <div class="service-badge">
+                    <span class="service-light"></span>
+                    FABRICA-SERVICE
+                </div>
+            </div>
+
+            <div class="parking-dashboard">
+
+                <div class="parking-visual">
+                    <div class="panel-title">LÍNEA DE PRODUCCIÓN</div>
+
+                    <div class="fila-actores" id="pcProductores"></div>
+                    <div class="flecha">▼ insertar · wait(espacios) ▼</div>
+
+                    <div class="almacen-linea">
+                        <div class="almacen-cabecera">
+                            <span>ALMACÉN</span>
+                            <span id="pcOcupacion">0 / 5</span>
+                        </div>
+                        <div class="almacen-ranuras" id="pcAlmacen"></div>
+                    </div>
+
+                    <div class="flecha">▼ extraer · wait(elementos) ▼</div>
+                    <div class="fila-actores" id="pcConsumidores"></div>
+                </div>
+
+                <div class="control-panel">
+                    <div class="panel-title">CONTROL PANEL</div>
+
+                    <div class="counter-grid">
+                        <div class="counter-card coral">
+                            <span class="counter-label">PRODUCIDAS</span>
+                            <span id="pcProducidas" class="counter-value">0</span>
+                        </div>
+                        <div class="counter-card teal">
+                            <span class="counter-label">CONSUMIDAS</span>
+                            <span id="pcConsumidas" class="counter-value">0</span>
+                        </div>
+                        <div class="counter-card yellow">
+                            <span class="counter-label">OCUPACIÓN MÁX.</span>
+                            <span id="pcMaxima" class="counter-value">0</span>
+                        </div>
+                        <div class="counter-card pink">
+                            <span class="counter-label">TIEMPO (MS)</span>
+                            <span id="pcTiempo" class="counter-value">-</span>
+                        </div>
+                    </div>
+
+                    <div class="sync-controles">
+                        <label>ESPACIOS <input type="number" id="pcEspacios" value="5" min="0" max="50"></label>
+                        <label>ELEMENTOS <input type="number" id="pcElementos" value="0" min="0" max="50"></label>
+                        <label class="completo">MODO
+                            <select id="pcModo">
+                                <option value="concurrente">concurrente (hilos)</option>
+                                <option value="secuencial">secuencial (un hilo)</option>
+                            </select>
+                        </label>
+                        <div class="sync-presets">
+                            <button data-pc="5,0">GUÍA 5/0</button>
+                            <button data-pc="0,0">ESPACIOS=0</button>
+                            <button data-pc="5,5">ELEMENTOS=5</button>
+                        </div>
+                    </div>
+
+                    <div class="arcade-actions">
+                        <button id="pcIniciar" class="arcade-btn primary-btn">
+                            <span class="btn-icon">▶</span> INICIAR SIMULACIÓN
+                        </button>
+                        <button id="pcRendimiento" class="arcade-btn secondary-btn">
+                            <span class="btn-icon">⏱</span> MEDIR RENDIMIENTO
+                        </button>
+                    </div>
+
+                    <div class="system-status">
+                        <div class="status-header"><span class="live-indicator"></span> LIVE STATUS</div>
+                        <div id="pcEstado" class="status-text">Esperando simulación</div>
+                        <div id="pcProgreso" class="loading-track"><div class="loading-bar"></div></div>
+                    </div>
+
+                    <div class="mini-terminal">
+                        <div class="terminal-header">
+                            <span></span><span></span><span></span>
+                            <strong>EVENT LOG</strong>
+                        </div>
+                        <div id="pcLog" class="terminal-body">
+                            <p><span>SYS</span> Sistema preparado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vehicle-section">
+                <div class="section-heading">
+                    <span>VERIFICACIÓN</span>
+                    <div class="pixel-line"></div>
+                </div>
+                <div class="verificacion" id="pcVerificacion">
+                    Inicia la simulación para ver si se cumple el criterio: el almacén nunca supera 5 y todas las piezas se consumen.
+                </div>
+                <table class="tabla-sync" id="pcTablaRend" hidden>
+                    <thead><tr><th>Repetición</th><th>Secuencial (ms)</th><th>Concurrente (ms)</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- ======================================== -->
+        <!-- 04 CRUCE DE VEHÍCULOS -->
+        <!-- ======================================== -->
+
+        <section class="module" id="puente">
+
+            <div class="module-heading">
+                <div class="module-number numero-amarillo">04</div>
+                <div class="module-title">
+                    <span class="eyebrow">MONITOR · LOCK + CONDITION</span>
+                    <h2>CRUCE DE VEHÍCULOS</h2>
+                    <p>Varios autos pueden cruzar en el mismo sentido, nunca en sentidos opuestos.</p>
+                </div>
+                <div class="service-badge">
+                    <span class="service-light"></span>
+                    PUENTE-SERVICE
+                </div>
+            </div>
+
+            <div class="parking-dashboard">
+
+                <div class="parking-visual">
+                    <div class="panel-title">PUENTE</div>
+
+                    <div class="puente-escena">
+                        <div class="orilla">
+                            <small>VAN AL NORTE →</small>
+                            <div class="cola-autos" id="ptColaNorte"></div>
+                        </div>
+                        <div class="agua">
+                            <div class="tablero" id="ptTablero"></div>
+                        </div>
+                        <div class="orilla derecha">
+                            <small>← VAN AL SUR</small>
+                            <div class="cola-autos" id="ptColaSur"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <div class="panel-title">CONTROL PANEL</div>
+
+                    <div class="counter-grid">
+                        <div class="counter-card coral">
+                            <span class="counter-label">DIRECCIÓN</span>
+                            <span id="ptDireccion" class="counter-value texto">LIBRE</span>
+                        </div>
+                        <div class="counter-card teal">
+                            <span class="counter-label">NORTE / SUR</span>
+                            <span id="ptEnPuente" class="counter-value">0 / 0</span>
+                        </div>
+                        <div class="counter-card yellow">
+                            <span class="counter-label">CRUZARON</span>
+                            <span id="ptCruzaron" class="counter-value">0</span>
+                        </div>
+                        <div class="counter-card pink">
+                            <span class="counter-label">SENT. OPUESTOS</span>
+                            <span id="ptViolaciones" class="counter-value">0</span>
+                        </div>
+                    </div>
+
+                    <div class="sync-controles">
+                        <label>POLÍTICA
+                            <select id="ptPolitica">
+                                <option value="base">base (guía)</option>
+                                <option value="justa">justa (reto)</option>
+                            </select>
+                        </label>
+                        <label>ESCENARIO
+                            <select id="ptEscenario">
+                                <option value="mixto">mixto 6 / 6</option>
+                                <option value="inanicion">inanición 15 / 3</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="arcade-actions">
+                        <button id="ptIniciar" class="arcade-btn primary-btn">
+                            <span class="btn-icon">▶</span> INICIAR SIMULACIÓN
+                        </button>
+                        <button id="ptInanicion" class="arcade-btn secondary-btn">
+                            <span class="btn-icon">⚖</span> COMPARAR POLÍTICAS
+                        </button>
+                        <button id="ptRendimiento" class="arcade-btn secondary-btn">
+                            <span class="btn-icon">⏱</span> MEDIR RENDIMIENTO
+                        </button>
+                    </div>
+
+                    <div class="system-status">
+                        <div class="status-header"><span class="live-indicator"></span> LIVE STATUS</div>
+                        <div id="ptEstado" class="status-text">Esperando simulación</div>
+                        <div id="ptProgreso" class="loading-track"><div class="loading-bar"></div></div>
+                    </div>
+
+                    <div class="mini-terminal">
+                        <div class="terminal-header">
+                            <span></span><span></span><span></span>
+                            <strong>EVENT LOG</strong>
+                        </div>
+                        <div id="ptLog" class="terminal-body">
+                            <p><span>SYS</span> Sistema preparado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vehicle-section">
+                <div class="section-heading">
+                    <span>VERIFICACIÓN</span>
+                    <div class="pixel-line"></div>
+                </div>
+                <div class="verificacion" id="ptVerificacion">
+                    Inicia la simulación para ver si se cumple el criterio: nunca hay autos en sentidos opuestos a la vez.
+                </div>
+                <table class="tabla-sync" id="ptTablaInanicion" hidden>
+                    <thead><tr><th>Política</th><th>Espera máx. sur (ms)</th><th>Espera máx. norte (ms)</th><th>Cambios de dirección</th><th>Tiempo total (ms)</th><th>Sent. opuestos</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <table class="tabla-sync" id="ptTablaRend" hidden>
+                    <thead><tr><th>Repetición</th><th>Secuencial (ms)</th><th>Concurrente (ms)</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- ======================================== -->
         <!-- RESTO DE MÓDULOS -->
         <!-- ======================================== -->
 
@@ -468,46 +715,8 @@
             </article>
 
 
-            <article class="retro-card locked">
-
-                <div class="retro-card-number">
-                    03
-                </div>
-
-                <h3>
-                    PRODUCTOR / CONSUMIDOR
-                </h3>
-
-                <p>
-                    Buffer limitado y sincronización.
-                </p>
-
-                <span class="coming-soon">
-                    WAITING FOR SERVICE
-                </span>
-
-            </article>
 
 
-            <article class="retro-card locked">
-
-                <div class="retro-card-number">
-                    04
-                </div>
-
-                <h3>
-                    CRUCE DE VEHÍCULOS
-                </h3>
-
-                <p>
-                    Circulación concurrente por dirección.
-                </p>
-
-                <span class="coming-soon">
-                    WAITING FOR SERVICE
-                </span>
-
-            </article>
 
 
             <article class="retro-card locked">
@@ -552,6 +761,10 @@
         type="module"
         src="js/app.js">
     </script>
+
+    <script type="module" src="js/fabrica.js"></script>
+
+    <script type="module" src="js/puente.js"></script>
 
 </body>
 </html>
